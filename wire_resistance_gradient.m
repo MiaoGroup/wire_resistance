@@ -1,18 +1,19 @@
+% Recommended size is less than 64 X 64
 close all;
 % resistivity 
 % Cu
 rho = 1.7e-8;
 % wire parameters
 % area
-S = 5e-6*200e-9;
+S = 1e-6*200e-9;
 % length
-L = 5e-6;
+L = 2e-6;
 
 % 线路（相邻两个格点）电阻
 % wire resistance
 R0 = rho*L/S;
 % test, 10 has huge effect
-R0 =  10;
+R0 =  100;
 
 % 阵列大小，会被测试用例覆盖
 % array N X N size
@@ -23,6 +24,8 @@ N = 32;
 R = round((rand(N, N))*36000) + 4000
 V_input = rand(1, N)*20;
 
+scale = 10;
+
 % 此处是测试用
 % test example
 % R = [7000 3000 3000 3000; 4000 6000 15000 15000; 9000 6000 6000 6000; 9000 6000 6000 6000];
@@ -31,7 +34,9 @@ V_input = rand(1, N)*20;
 
 
 [I_actual, conductance] = calculate(R, R0, N, V_input);
-
+% 电导和电流乘以放缩系数
+I_actual = I_actual*scale;
+conductance = conductance*scale;
 % 未调节时的电流输出
 % I when no tune
 I_no_tune = I_actual;
@@ -41,11 +46,11 @@ R_equivalent_no_tune = R_equivalent_current
 
 % 训练次数
 % train times
-epoch = 80;
+epoch = 40;
 
 % 学习速率
 % learning rate
-eta = 0.4;
+eta = 0.5;
 
 % ideal output
 I_ideal = V_input*(1./R)*1000;   
@@ -64,6 +69,8 @@ for i=2:epoch
     V_input = rand(1, N)*20;
     I_ideal = V_input*(1./R)*1000;
     [I_actual, conductance] = calculate(R_resistor_tune, R0, N, V_input);
+    I_actual = I_actual*scale;
+    conductance = conductance*scale;
     R_equivalent_current = 1./conductance*1000;
     % 随机输入情况下的偏移
     % deviation for random input
@@ -74,7 +81,13 @@ xlim([1 epoch]);
 title('mean deviation by tune conductance');
 xlabel('times');
 ylabel('deviation');
-R_equivalent_current
+V_input = rand(1, N)*20;
+I_ideal = V_input*(1./R)*1000
+% conductance = conductance/scale;
+% I_test = V_input*scale*conductance;
+I_no_tune_has_scale = V_input*(1./R_equivalent_no_tune)*1000
+I_test = V_input*conductance
+I_ideal - I_test
 
 function [A] = coefficient_matrix(R, R0, N)
 % 格点总数
