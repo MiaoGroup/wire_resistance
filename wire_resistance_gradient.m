@@ -13,7 +13,7 @@ L = 2e-6;
 % wire resistance
 R0 = rho*L/S;
 % test, 10 has huge effect
-R0 =  100;
+R0 =  10;
 
 % 阵列大小，会被测试用例覆盖
 % array N X N size
@@ -21,9 +21,10 @@ N = 32;
 
 % 随机生成
 % random memoristor resistance and input vector
-R = round((rand(N, N))*36000) + 4000
+R = round((rand(N, N))*36000) + 4000;
 V_input = rand(1, N)*20;
 
+% Voltage gain
 scale = 10;
 
 % 此处是测试用
@@ -42,7 +43,7 @@ conductance = conductance*scale;
 I_no_tune = I_actual;
 % 
 R_equivalent_current = 1./conductance*1000;
-R_equivalent_no_tune = R_equivalent_current
+R_equivalent_no_tune = R_equivalent_current;
 
 % 训练次数
 % train times
@@ -81,13 +82,6 @@ xlim([1 epoch]);
 title('mean deviation by tune conductance');
 xlabel('times');
 ylabel('deviation');
-V_input = rand(1, N)*20;
-I_ideal = V_input*(1./R)*1000
-% conductance = conductance/scale;
-% I_test = V_input*scale*conductance;
-I_no_tune_has_scale = V_input*(1./R_equivalent_no_tune)*1000
-I_test = V_input*conductance
-I_ideal - I_test
 
 function [A] = coefficient_matrix(R, R0, N)
 % 格点总数
